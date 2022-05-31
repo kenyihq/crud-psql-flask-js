@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
 from psycopg2 import extras
+from cryptography.fernet import Fernet 
 
 # Import from file database.py
 from database import get_connection
 
 app = Flask(__name__)
+key = Fernet.generate_key()
 
 
 @app.route('/', )
@@ -27,7 +29,7 @@ def create_user():
     new_user = request.get_json()
     username = new_user['username']
     email = new_user['email']
-    password = new_user['password']
+    password = Fernet(key).encrypt(bytes(new_user['password'], 'utf-8'))
 
     conn = get_connection()
     cur = conn.cursor(cursor_factory=extras.RealDictCursor)
