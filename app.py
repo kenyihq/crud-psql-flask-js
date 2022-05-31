@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 
 # Import from file database.py
 from database import get_connection
@@ -21,6 +21,10 @@ def get_users():
 
 @app.post('/api/users')
 def create_user():
+    new_user = request.get_json()
+    username = new_user['username']
+
+    print(request.get_json())
     return 'creating users'
 
 @app.put('/api/users/1')
