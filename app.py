@@ -67,8 +67,19 @@ def delete_user():
     return 'deleting users'
 
 
-@app.get('/api/users/1')
-def get_user():
+@app.get('/api/users/<id>')
+def get_user(id):
+    conn = get_connection()    
+    cur = conn.cursor(cursor_factory=extras.RealDictCursor)
+
+    cur.execute("SELECT * FROM users WHERE id = %s", (id,))
+    user = cur.fetchone()
+
+    if user is None:
+        return jsonify({'message': 'User not found'}), 404
+
+    return jsonify(user)
+
     return 'getting users'
 
 
