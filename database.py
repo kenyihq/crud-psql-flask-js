@@ -1,4 +1,4 @@
-from psycopg2 import connect
+from psycopg2 import connect, extras
 
 host = 'localhost'
 port = 5432
