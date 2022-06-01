@@ -57,9 +57,29 @@ def create_user():
     return jsonify(new_created_user)
 
 
-@app.put('/api/users/1')
-def update_user():
-    return 'updating users'
+@app.put('/api/users/<id>')
+def update_user(id):
+
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=extras.RealDictCursor)
+
+    new_user = request.get_json()
+    username = new_user['username']
+    email = new_user['email']
+    password = Fernet(key).encrypt(bytes(new_user['password'], 'utf-8'))
+
+    cur.execute("UPDATE users SET username=%s, email=%s, password=%s WHERE id=%s RETURNING *",
+                (username, email, password, id))
+    updated_user = cur.fetchone()
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    if updated_user is None:
+        return jsonify({'message': 'User not found'}), 404
+
+    return jsonify(updated_user)
 
 
 @app.delete('/api/users/<id>')
