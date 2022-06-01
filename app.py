@@ -62,9 +62,22 @@ def update_user():
     return 'updating users'
 
 
-@app.delete('/api/users/1')
-def delete_user():
-    return 'deleting users'
+@app.delete('/api/users/<id>')
+def delete_user(id):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=extras.RealDictCursor)
+
+    cur.execute("DELETE FROM users WHERE id = %s RETURNING *", (id,))
+    user = cur.fetchone()
+    print(user)
+    conn.commit()
+    conn.close()
+    cur.close()
+
+    if user is None:
+        return jsonify({'message': 'User not found'}), 404
+
+    return jsonify(user)
 
 
 @app.get('/api/users/<id>')
@@ -79,9 +92,6 @@ def get_user(id):
         return jsonify({'message': 'User not found'}), 404
 
     return jsonify(user)
-
-    return 'getting users'
-
 
 if __name__ == '__main__':
     app.run(debug=True)
